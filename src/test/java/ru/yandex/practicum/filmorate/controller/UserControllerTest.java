@@ -36,7 +36,7 @@ class UserControllerTest {
     void shouldReturnEqualsCreateNewUser() {
 
         User user = new User("ivan@gmail.com", "ivan.I", "Иванов", LocalDate.of(2011, 1, 21));
-        User newUser = controller.createUser(user);
+        User newUser = controller.create(user);
 
         assertEquals(user, newUser);
     }
@@ -60,7 +60,7 @@ class UserControllerTest {
     void shouldThrowWhenBirthdayIsAfterNow() {
 
         User user = new User(null, "ivan.I", "Иванов", LocalDate.of(2023, 1, 21));
-        assertThrows(InvalidValidationExeption.class, () -> controller.createUser(user));
+        assertThrows(InvalidValidationExeption.class, () -> controller.create(user));
     }
 
     //login
@@ -85,8 +85,8 @@ class UserControllerTest {
         User userSecond = new User("petroff@ya.ru", "petr.I", "", LocalDate.of(2011, 1, 21));
 
         assertAll(String.valueOf(true),
-                () -> assertDoesNotThrow(() -> controller.createUser(user)),
-                () -> assertDoesNotThrow(() -> controller.createUser(userSecond)));
+                () -> assertDoesNotThrow(() -> controller.create(user)),
+                () -> assertDoesNotThrow(() -> controller.create(userSecond)));
     }
 
     @Test
@@ -95,8 +95,8 @@ class UserControllerTest {
         User user = new User("ivan@gmail.com", "ivan.P", null, LocalDate.of(2011, 1, 21));
         User userSecond = new User("petroff@ya.ru", "petr.I", "", LocalDate.of(2011, 1, 21));
 
-        User newUser = controller.createUser(user);
-        User newUserSecond = controller.createUser(userSecond);
+        User newUser = controller.create(user);
+        User newUserSecond = controller.create(userSecond);
 
         assertAll(String.valueOf(true),
                 () -> assertEquals(newUser.getName(), newUser.getLogin()),
@@ -108,24 +108,24 @@ class UserControllerTest {
     void shouldDoesNotThrowWhenCorrectIdPUT() {
 
         User user = new User("ivan@gmail.com", "ivan.I", "Иванов", LocalDate.of(2011, 1, 21));
-        User savedUser = controller.createUser(user);
+        User savedUser = controller.create(user);
 
         User updateUser = new User("petroff@ya.ru", "petr.I", "Петров", LocalDate.of(2012, 11, 22));
         updateUser.setId(savedUser.getId());
 
-        assertDoesNotThrow(() -> controller.updateUser(updateUser));
+        assertDoesNotThrow(() -> controller.update(updateUser));
     }
 
     @Test
     void shouldThrowWhenIncorrectIdPUT() {
 
         User user = new User("ivan@gmail.com", "ivan.I", "Иванов", LocalDate.of(2011, 1, 21));
-        User savedUser = controller.createUser(user);
+        User savedUser = controller.create(user);
 
         User updateUser = new User("petroff@ya.ru", "petr.I", "Петров", LocalDate.of(2012, 11, 22));
         updateUser.setId(-2);
 
-        assertThrows(InvalidValidationExeption.class, () -> controller.updateUser(updateUser));
+        assertThrows(InvalidValidationExeption.class, () -> controller.update(updateUser));
     }
 
     //GET users
@@ -136,9 +136,9 @@ class UserControllerTest {
         User userSecond = new User("petroff@ya.ru", "Petr.V", "Петров", LocalDate.of(2011, 1, 21));
         User userThrid = new User("sidor@mail.com", "Sidor.I", "Сидоров", LocalDate.of(2010, 1, 21));
 
-        controller.createUser(user);
-        controller.createUser(userSecond);
-        controller.createUser(userThrid);
+        controller.create(user);
+        controller.create(userSecond);
+        controller.create(userThrid);
 
         List<User> users = controller.getUsers();
 

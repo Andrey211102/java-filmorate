@@ -36,7 +36,7 @@ class FilmControllerTest {
     void shouldReturnEqualsCreateNewFilm() {
 
         Film film = new Film("Название", "Описание", LocalDate.of(2020, 1, 21), 200);
-        Film newFilm = controller.createFilm(film);
+        Film newFilm = controller.create(film);
 
         assertEquals(film,newFilm);
     }
@@ -74,7 +74,7 @@ class FilmControllerTest {
 
         Film film = new Film("Название", description, LocalDate.of(2020, 1, 21), 200);
 
-        assertThrows(InvalidValidationExeption.class, () -> controller.createFilm(film));
+        assertThrows(InvalidValidationExeption.class, () -> controller.create(film));
     }
 
     //releaseDate
@@ -82,7 +82,7 @@ class FilmControllerTest {
     void shouldThrowWhenReleaseDateIsBefore(){
         //28.12.1895
         Film film = new Film("Название", "Описание", LocalDate.of(1895, 12, 27), 200);
-        assertThrows(InvalidValidationExeption.class,()-> controller.createFilm(film));
+        assertThrows(InvalidValidationExeption.class,()-> controller.create(film));
     }
 
     @Test
@@ -90,7 +90,7 @@ class FilmControllerTest {
         //28.12.1895
         Film film = new Film("Название", "Описание", LocalDate.of(1895, 12, 29), 200);
 
-        assertDoesNotThrow(()-> controller.createFilm(film));
+        assertDoesNotThrow(()-> controller.create(film));
     }
 
     //duration
@@ -101,8 +101,8 @@ class FilmControllerTest {
         Film filmSecod = new Film("Название", "Описание", LocalDate.of(1895, 12, 27), -1);
 
         assertAll(String.valueOf(true),
-                () -> assertThrows(InvalidValidationExeption.class,()-> controller.createFilm(film)),
-                () -> assertThrows(InvalidValidationExeption.class,()-> controller.createFilm(filmSecod)));
+                () -> assertThrows(InvalidValidationExeption.class,()-> controller.create(film)),
+                () -> assertThrows(InvalidValidationExeption.class,()-> controller.create(filmSecod)));
     }
 
     //PUT
@@ -110,12 +110,12 @@ class FilmControllerTest {
     void shouldDoesNotThrowWhenCorrectIdPUT(){
 
         Film film = new Film("Название", "Описание", LocalDate.of(2022, 12, 29), 200);
-        Film savedFilm = controller.createFilm(film);
+        Film savedFilm = controller.create(film);
 
         Film updateFilm = new Film("Обновленное название", "Обновленное описание", LocalDate.of(2022, 12, 29), 200);
         updateFilm.setId(savedFilm.getId());
 
-        assertDoesNotThrow(()-> controller.updateFilm(updateFilm));
+        assertDoesNotThrow(()-> controller.update(updateFilm));
     }
 
     @Test
@@ -126,7 +126,7 @@ class FilmControllerTest {
         Film updateFilm = new Film("Обновленное название", "Обновленное описание", LocalDate.of(2022, 12, 29), 200);
         updateFilm.setId(-2);
 
-        assertThrows(InvalidValidationExeption.class,()-> controller.updateFilm(updateFilm));
+        assertThrows(InvalidValidationExeption.class,()-> controller.update(updateFilm));
     }
 
     //GET films
@@ -138,11 +138,11 @@ class FilmControllerTest {
         Film filmSecond = new Film("Название2", "Описание2", LocalDate.of(2019, 11, 19), 210);
         Film filmThird = new Film("Название3", "Описание3", LocalDate.of(2013, 12, 22), 110);
 
-        controller.createFilm(film);
-        controller.createFilm(filmSecond);
-        controller.createFilm(filmThird);
+        controller.create(film);
+        controller.create(filmSecond);
+        controller.create(filmThird);
 
-        List<Film> films = controller.getFilms();
+        List<Film> films = controller.get();
 
         assertAll(String.valueOf(true),
                 () -> assertEquals(3,films.size()),

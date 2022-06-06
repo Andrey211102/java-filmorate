@@ -1,24 +1,23 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exeptions.InvalidValidationExeption;
 import ru.yandex.practicum.filmorate.model.User;
 
+import lombok.extern.slf4j.Slf4j;
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
     private Long lastUid;
     private final HashMap<Long, User> users;
-    private final static Logger log = LoggerFactory.getLogger(FilmController.class);
 
     public UserController() {
         this.users = new HashMap<>();
@@ -31,9 +30,9 @@ public class UserController {
     }
 
     @PostMapping
-    public User createUser(@Valid @RequestBody User newUser) {
+    public User create(@Valid @RequestBody User newUser) {
 
-        validateUser(newUser, RequestMethod.POST);
+        validate(newUser, RequestMethod.POST);
 
         if (newUser.getName() == null || newUser.getName().equals("")) {
             newUser.setName(newUser.getLogin());
@@ -50,9 +49,9 @@ public class UserController {
     }
 
     @PutMapping
-    public User updateUser(@Valid @RequestBody User user) {
+    public User update(@Valid @RequestBody User user) {
 
-        validateUser(user, RequestMethod.PUT);
+        validate(user, RequestMethod.PUT);
 
         if (user.getName() == null || user.getName().equals("")) {
             user.setName(user.getLogin());
@@ -73,7 +72,7 @@ public class UserController {
         }
     }
 
-    private void validateUser(User user, RequestMethod method) {
+    private void validate(User user, RequestMethod method) {
 
         String errorMessage;
 

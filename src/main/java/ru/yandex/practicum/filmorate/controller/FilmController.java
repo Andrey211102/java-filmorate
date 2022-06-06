@@ -1,24 +1,23 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exeptions.InvalidValidationExeption;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import lombok.extern.slf4j.Slf4j;
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
 
     private Long lastUid;
     private final HashMap<Long, Film> films;
-    private final static Logger log = LoggerFactory.getLogger(FilmController.class);
 
     public FilmController() {
         this.films = new HashMap<>();
@@ -26,14 +25,14 @@ public class FilmController {
     }
 
     @GetMapping
-    public List<Film> getFilms() {
+    public List<Film> get() {
         return new ArrayList<>(this.films.values());
     }
 
     @PostMapping
-    public Film createFilm(@Valid @RequestBody Film newFilm) {
+    public Film create(@Valid @RequestBody Film newFilm) {
 
-        validateFilm(newFilm, RequestMethod.POST);
+        validate(newFilm, RequestMethod.POST);
 
         newFilm.setId(this.lastUid);
 
@@ -46,9 +45,9 @@ public class FilmController {
     }
 
     @PutMapping
-    public Film updateFilm(@Valid @RequestBody Film film) {
+    public Film update(@Valid @RequestBody Film film) {
 
-        validateFilm(film, RequestMethod.PUT);
+        validate(film, RequestMethod.PUT);
 
         this.films.put(film.getId(), film);
         log.info("Обновлен фильм: {}", film);
@@ -65,7 +64,7 @@ public class FilmController {
         }
     }
 
-    private void validateFilm(Film film, RequestMethod method) {
+    private void validate(Film film, RequestMethod method) {
 
         String errorMessage;
 
