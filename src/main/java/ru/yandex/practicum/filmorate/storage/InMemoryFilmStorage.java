@@ -48,6 +48,15 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
+    public void delete(Film film) {
+
+        validate(film, RequestMethod.DELETE);
+
+        this.films.remove(film.getId());
+        log.info("Удален фильм: {}", film);
+    }
+
+    @Override
     public Film getFilmById(long id) {
 
         if (!this.films.containsKey(id)) {
@@ -72,6 +81,16 @@ public class InMemoryFilmStorage implements FilmStorage {
     private void validate(Film film, RequestMethod method) {
 
         String errorMessage;
+
+        if (method == RequestMethod.DELETE) {
+            if (!this.films.containsKey(film.getId())) {
+
+                errorMessage = "Ошибка удаления. Фильм c id: " + film.getId() + "не найден";
+                log.error(errorMessage);
+                throw new FilmNotFoundException(errorMessage);
+            }
+            return;
+        }
 
         if (film.getDescription().length() > 200) {
 

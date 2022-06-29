@@ -20,9 +20,7 @@ public class FilmService {
 
     public void addLike(long id, long userId) {
 
-        Film film = storage.getFilmById(id);
-
-        storage.getFilmById(id).addLike(userId);
+        storage.getFilmById(id).getLikes().add(userId);
     }
 
     public void removeLike(long id, long userId) {

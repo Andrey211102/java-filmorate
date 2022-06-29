@@ -36,10 +36,6 @@ public class Film {
         this.duration = duration;
     }
 
-    public boolean addLike(long id){
-        return this.likes.add(id);
-    }
-
     public boolean removeLike(long id){
 
         if (!likes.contains(id)){

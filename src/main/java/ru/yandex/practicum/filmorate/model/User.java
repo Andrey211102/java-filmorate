@@ -35,10 +35,6 @@ public class User {
         this.birthday = birthday;
     }
 
-    public boolean addFriend(long id){
-        return this.friends.add(id);
-    }
-
     public boolean removeFriend(long id){
 
         if (!friends.contains(id)){

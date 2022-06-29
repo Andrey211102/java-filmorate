@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMethod;
+import ru.yandex.practicum.filmorate.exeptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exeptions.InvalidValidationExeption;
 import ru.yandex.practicum.filmorate.exeptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -72,6 +73,15 @@ public class InMemoryUserStorage implements UserStorage {
         return this.users.get(id);
     }
 
+    @Override
+    public void delete(User user) {
+
+        validate(user, RequestMethod.DELETE);
+
+        this.users.remove(user.getId());
+        log.info("Удален пользователь: {}", user);
+    }
+
     private void setLastUid() {
 
         if (this.users.isEmpty()) {
@@ -84,6 +94,16 @@ public class InMemoryUserStorage implements UserStorage {
     private void validate(User user, RequestMethod method) {
 
         String errorMessage;
+
+        if (method == RequestMethod.DELETE) {
+            if (!this.users.containsKey(user.getId())) {
+
+                errorMessage = "Ошибка удаления. Пользователь c id: " + user.getId() + "не найден";
+                log.error(errorMessage);
+                throw new UserNotFoundException(errorMessage);
+            }
+            return;
+        }
 
         if (user.getBirthday().isAfter(LocalDate.now())) {
 

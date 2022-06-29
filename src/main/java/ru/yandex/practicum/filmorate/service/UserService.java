@@ -23,8 +23,8 @@ public class UserService {
         User user   = storage.getUserById(id);
         User friend = storage.getUserById(friendId);
 
-        user.addFriend(friendId);
-        friend.addFriend(id);
+        user.getFriends().add(friendId);
+        friend.getFriends().add(id);
     }
 
     public void removeFromFriends(long id, long friendId) {
