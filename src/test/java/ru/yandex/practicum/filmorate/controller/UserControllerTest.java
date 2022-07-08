@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.exeptions.InvalidValidationExeption;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -29,7 +31,8 @@ class UserControllerTest {
 
     @BeforeEach
     void setUp() {
-        controller = new UserController();
+        InMemoryUserStorage storage = new InMemoryUserStorage();
+        controller = new UserController(storage,new UserService(storage));
     }
 
     @Test
@@ -140,7 +143,7 @@ class UserControllerTest {
         controller.create(userSecond);
         controller.create(userThrid);
 
-        List<User> users = controller.getUsers();
+        List<User> users = controller.getAll();
 
         assertAll(String.valueOf(true),
                 () -> assertEquals(3, users.size()),

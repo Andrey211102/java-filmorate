@@ -1,95 +1,70 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exeptions.InvalidValidationExeption;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import lombok.extern.slf4j.Slf4j;
 import javax.validation.Valid;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
-@Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
-    private Long lastUid;
-    private final HashMap<Long, User> users;
+    private final UserStorage storage;
+    private final UserService service;
 
-    public UserController() {
-        this.users = new HashMap<>();
-        this.lastUid = 1L;
+    @Autowired
+    public UserController(InMemoryUserStorage storage, UserService service) {
+        this.storage = storage;
+        this.service = service;
     }
 
     @GetMapping
-    public List<User> getUsers() {
-        return new ArrayList<>(this.users.values());
+    public List<User> getAll() {
+        return storage.getAll();
     }
 
     @PostMapping
     public User create(@Valid @RequestBody User newUser) {
-
-        validate(newUser, RequestMethod.POST);
-
-        if (newUser.getName() == null || newUser.getName().equals("")) {
-            newUser.setName(newUser.getLogin());
-        }
-
-        newUser.setId(this.lastUid);
-
-        users.put(newUser.getId(), newUser);
-        log.info("Добавлен пользователь: {}", newUser);
-
-        setLastUid();
-
-        return newUser;
+        return storage.create(newUser);
     }
 
     @PutMapping
     public User update(@Valid @RequestBody User user) {
-
-        validate(user, RequestMethod.PUT);
-
-        if (user.getName() == null || user.getName().equals("")) {
-            user.setName(user.getLogin());
-        }
-
-        users.put(user.getId(), user);
-        log.info("Обновлен пользователь: {}", user);
-
-        return user;
+        return storage.update(user);
     }
 
-    private void setLastUid() {
-
-        if (this.users.isEmpty()) {
-            this.lastUid = 1L;
-        } else {
-            this.lastUid++;
-        }
+    @PutMapping("/{id}/friends/{friendId}")
+    public void addToFriends(@PathVariable long id, @PathVariable long friendId) {
+        service.addToFriends(id,friendId);
     }
 
-    private void validate(User user, RequestMethod method) {
-
-        String errorMessage;
-
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-
-            errorMessage = "Дата рождения не может быть в будущем!";
-            log.error(errorMessage);
-            throw new InvalidValidationExeption(errorMessage);
-        }
-
-        if (method == RequestMethod.PUT && user.getId() <= 0) {
-
-            errorMessage = "Указан некорректный id";
-            log.error(errorMessage);
-            throw new InvalidValidationExeption(errorMessage);
-        }
+    @DeleteMapping ("/{id}/friends/{friendId}")
+    public void removeFromFriends(@PathVariable long id, @PathVariable long friendId) {
+        service.removeFromFriends(id,friendId);
     }
 
+    @GetMapping("/{id}")
+    public User get(@PathVariable long id){
+        return service.get(id);
+    }
+
+    @GetMapping("/{id}/friends")
+    public List<User> getAllFriends(@PathVariable long id){
+        return service.getFriends(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> getMutualFriends(@PathVariable long id, @PathVariable long otherId){
+        return service.getMutualFriends(id, otherId);
+    }
 }
+
+
+
+
 

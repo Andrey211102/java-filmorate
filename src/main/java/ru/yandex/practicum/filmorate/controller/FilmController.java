@@ -1,96 +1,61 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exeptions.InvalidValidationExeption;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
-import lombok.extern.slf4j.Slf4j;
 import javax.validation.Valid;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
-@Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
 
-    private Long lastUid;
-    private final HashMap<Long, Film> films;
+    private final FilmStorage filmStorage;
+    private final FilmService filmService;
 
-    public FilmController() {
-        this.films = new HashMap<>();
-        this.lastUid = 1L;
+    @Autowired
+    public FilmController(InMemoryFilmStorage filmStorage,FilmService filmService) {
+        this.filmStorage = filmStorage;
+        this.filmService = filmService;
     }
 
     @GetMapping
-    public List<Film> get() {
-        return new ArrayList<>(this.films.values());
+    public List<Film> getAll() {
+        return filmStorage.getAll();
+    }
+
+    @GetMapping("/{id}")
+    public Film get(@PathVariable long id) {
+        return filmStorage.getFilmById(id);
     }
 
     @PostMapping
     public Film create(@Valid @RequestBody Film newFilm) {
-
-        validate(newFilm, RequestMethod.POST);
-
-        newFilm.setId(this.lastUid);
-
-        this.films.put(newFilm.getId(), newFilm);
-        log.info("Добавлен фильм: {}", newFilm);
-
-        setLastUid();
-
-        return newFilm;
+        return filmStorage.create(newFilm);
     }
 
     @PutMapping
     public Film update(@Valid @RequestBody Film film) {
-
-        validate(film, RequestMethod.PUT);
-
-        this.films.put(film.getId(), film);
-        log.info("Обновлен фильм: {}", film);
-
-        return film;
+        return filmStorage.update(film);
     }
 
-    private void setLastUid() {
-
-        if (this.films.isEmpty()) {
-            this.lastUid = 1L;
-        } else {
-            this.lastUid++;
-        }
+    @PutMapping("/{id}/like/{userId}")
+    public void addLike(@PathVariable long id, @PathVariable long userId){
+        filmService.addLike(id, userId);
     }
 
-    private void validate(Film film, RequestMethod method) {
+    @DeleteMapping("/{id}/like/{userId}")
+    public void removeLike(@PathVariable long id, @PathVariable long userId){
+        filmService.removeLike(id, userId);
+    }
 
-        String errorMessage;
-
-        if (film.getDescription().length() > 200) {
-
-            errorMessage = "Превышена максимальная длина описания!";
-            log.error(errorMessage);
-            throw new InvalidValidationExeption(errorMessage);
-        }
-
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-
-            errorMessage = "Дата релиза раньше 28.12.1895!";
-            log.error(errorMessage);
-            throw new InvalidValidationExeption(errorMessage);
-        }
-
-        if (method == RequestMethod.PUT && film.getId() <= 0) {
-
-            errorMessage = "Указан некорректный id";
-            log.error(errorMessage);
-            throw new InvalidValidationExeption(errorMessage);
-        }
+   @GetMapping("/popular")
+    public List<Film> getPopular(@RequestParam(required = false) Integer count){
+        return filmService.getPopular(count);
     }
 }
-
-
-
 
